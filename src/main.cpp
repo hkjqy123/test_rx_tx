@@ -12,7 +12,7 @@ struct Student {
 } ;
 Student yqj_s;
 
-
+;
 void loop()
 {
 
