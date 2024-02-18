@@ -1,0 +1,95 @@
+#include <Arduino.h>
+
+unsigned char item[8] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xC4, 0x0B}; // 16進位制測溫命令
+String data = "";                                                         // 接收到的16進位制字串
+
+float getTemp(String temperature); // 函數宣告
+
+void setup()
+{
+  Serial1.begin(256000, SERIAL_8N1, 16, 17);
+  Serial.begin(115200);
+}
+
+void loop()
+{
+  // delay(2000); 
+  // for (int i = 0; i < 8; i++)
+  // {                         // 傳送測溫命令
+  //   Serial1.write(item[i]); // write輸出
+  // }
+  // delay(100); // 等待測溫資料返回
+  data = "";
+  //从串口缓冲读取数据拼接为字符串并清空串口缓冲
+  // while (Serial1.available())
+  // {
+  //   unsigned char in = (unsigned char)Serial1.read(); // read讀取
+  //   data += in;
+  //   data += ',';
+  // }
+  // Serial.println("数据接收完毕");
+  // if (data.length() > 0)
+  // { 
+  //   String strub = data.substring(data.indexOf("248,247,246,245"), data.indexOf("244,243,242,241")); // 拆分数据帧头部和尾部
+  //   if (data.startsWith("244,243,242,241"))
+  //   {
+  //     Serial.println(strub.length());
+  //     Serial.println(strub);
+  //     Serial.println();
+  //     getTemp(strub);
+  //   }
+  // }
+  unsigned char x1 = 196;
+  unsigned char x2 = 0x2B;
+  u_int x3 = 0x00;
+ int a3 = 0x00;
+ a3 = x2 << 16| x1;
+ Serial.println(x1<< 4,HEX);
+  Serial.println(a3,HEX);
+  Serial.println(a3>>8,HEX);
+  Serial.println(a3 & 0x00ff,HEX);
+  Serial.println(-5152,HEX);
+  delay(2000);
+}
+
+float getTemp(String temp)
+{
+  int commaPosition = -1;
+  String info[19]; // 定义接收字符串数组
+  for (int i = 0; i < 19; i++)
+  {
+    commaPosition = temp.indexOf(',');
+    if (commaPosition != -1)
+    {
+      info[i] = temp.substring(0, commaPosition);
+      temp = temp.substring(commaPosition + 1, temp.length());
+    }
+    else
+    {
+      if (temp.length() > 0)
+      { // 最後一個會執行這個
+        info[i] = temp.substring(0, commaPosition);
+      }
+    }
+  }
+  String mubiao_state = "无目标";
+  switch (info[8].toInt())
+  {
+  case 0:
+    mubiao_state = "无人"; /* code */
+    break;
+  case 1:
+    mubiao_state = "有人移动"; /* code */
+    break;
+  case 2:
+    mubiao_state = "有人静止"; /* code */
+    break;
+  case 3:
+    mubiao_state = "有人"; /* code */
+    break;
+  default:
+    break;
+  }
+  Serial.println(mubiao_state);
+  return (info[3].toInt() * 256 + info[4].toInt()) / 10.0;
+}
